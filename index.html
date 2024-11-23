@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>معجم عربي-صيني</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* تنسيق النص داخل حقل الإدخال ليكون بولد عند عرض الترجمة */
+        .search-form input {
+            font-weight: normal; /* الافتراضي */
+        }
+
+        /* عند عرض الترجمة بولد وتكبير حجم الخط */
+        .search-form input.bold-result {
+            font-weight: bold;
+            font-size: 2em; /* ضاعف حجم الخط */
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1 class="title-en">Arabic - Chinese Dictionary</h1>
+            <h1 class="title-ar">معجم عربي - صيني</h1>
+            <p>ابحث بسهولة عن معاني الكلمات باللغة العربية أو الصينية</p>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <section class="search-section">
+                <h2>ابدأ البحث الآن</h2>
+                <form class="search-form">
+                    <input type="text" placeholder="أدخل الكلمة بالعربية أو الصينية..." required>
+                    <button type="submit">بحث</button>
+                </form>
+                <p class="trial-info">يتوفر البحث التجريبي لـ 50 كلمة مجانًا.</p>
+            </section>
+
+            <section class="features-section">
+                <h2>مميزات المعجم</h2>
+                <ul>
+                    <li>بحث سريع ودقيق بالكلمات العربية والصينية.</li>
+                    <li>واجهة سهلة الاستخدام وغير قابلة للنسخ.</li>
+                    <li>فترة تجريبية مجانية لـ 50 كلمة.</li>
+                    <li>إمكانية الاشتراك المدفوع بعد انتهاء الفترة التجريبية.</li>
+                </ul>
+            </section>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 معجم عربي-صيني. جميع الحقوق محفوظة.</p>
+            <p>للتواصل: <a href="mailto:your-email@example.com">your-email@example.com</a></p>
+        </div>
+    </footer>
+
+    <script>
+        // المعجم الذي يحتوي على الترجمات
+        const dictionary = {
+            "سلام": "你好",  // الترجمة من العربية إلى الصينية
+            "كيف": "怎样",  // الترجمة من العربية إلى الصينية
+            "أنت": "你",    // الترجمة من العربية إلى الصينية
+            "شكرا": "谢谢", // الترجمة من العربية إلى الصينية
+            "你好": "سلام",  // الترجمة من الصينية إلى العربية
+            "怎样": "كيف",  // الترجمة من الصينية إلى العربية
+            "你": "أنت",    // الترجمة من الصينية إلى العربية
+            "谢谢": "شكرا"  // الترجمة من الصينية إلى العربية
+        };
+
+        let lastInput = ''; // لتخزين الكلمة المدخلة السابقة
+        let isArabicToChinese = true; // حالة الترجمة: إذا كانت الترجمة من العربية إلى الصينية
+
+        // دالة لمعالجة البحث وتغيير الكلمة في خانة البحث إلى الترجمة أو العكس
+        document.querySelector('.search-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // منع إرسال النموذج
+            const inputField = event.target.querySelector('input'); // الحصول على حقل الإدخال
+            const inputWord = inputField.value.trim(); // الكلمة المدخلة في مربع البحث
+
+            if (inputWord === lastInput && isArabicToChinese) {
+                // إذا كانت الكلمة نفسها وكانت الترجمة من العربية إلى الصينية، عكس الترجمة
+                const translation = dictionary[inputWord];
+                if (translation) {
+                    inputField.value = translation; // استبدال الكلمة بالصينية
+                    inputField.classList.add('bold-result'); // جعل النص بولد وتكبير الحجم
+                } else {
+                    inputField.value = "الكلمة غير موجودة في المعجم.";
+                    inputField.classList.remove('bold-result'); // إزالة التنسيق البولدي إذا لم تكن هناك ترجمة
+                }
+                isArabicToChinese = false; // تغيير الحالة إلى الترجمة من الصينية إلى العربية
+            } else {
+                // إذا كانت الكلمة جديدة أو تم التبديل للترجمة من الصينية إلى العربية
+                const translation = dictionary[inputWord];
+                if (translation) {
+                    inputField.value = translation; // استبدال الكلمة بالترجمة
+                    inputField.classList.add('bold-result'); // جعل النص بولد وتكبير الحجم
+                } else {
+                    inputField.value = "الكلمة غير موجودة في المعجم.";
+                    inputField.classList.remove('bold-result'); // إزالة التنسيق البولدي إذا لم تكن هناك ترجمة
+                }
+                isArabicToChinese = true; // تغيير الحالة إلى الترجمة من العربية إلى الصينية
+            }
+
+            lastInput = inputWord; // تخزين الكلمة المدخلة الحالية
+        });
+    </script>
+</body>
+</html>
