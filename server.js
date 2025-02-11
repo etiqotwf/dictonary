@@ -12,8 +12,8 @@ app.use(bodyParser.json());
 app.post("/submit", (req, res) => {
     const { name, phone, date, startTime, timeTaken, score } = req.body;
 
-    // الحد الأقصى للدرجات بناءً على عدد الأسئلة
-    const maxScore = 5; // لأن هناك 5 أسئلة وكل سؤال بدرجة واحدة
+    // الحد الأقصى للدرجات بناءً على عدد الأسئلة (50 سؤال)
+    const maxScore = 50;
 
     // التأكد من أن score قيمة عددية صحيحة
     const numericScore = parseFloat(score);
@@ -22,7 +22,7 @@ app.post("/submit", (req, res) => {
         return res.status(400).json({ message: "❌ Invalid score value!" });
     }
 
-    // حساب النسبة المئوية بناءً على 5
+    // حساب النسبة المئوية بناءً على 50
     const percentage = ((numericScore / maxScore) * 100).toFixed(2) + "%";
 
     // تجهيز النص للحفظ في الملف
