@@ -298,8 +298,11 @@ const questions = [
         score: `${totalCorrectAnswers} / ${totalQuestions}`
     };
 
+    // رابط السيرفر عبر الإنترنت (يجب تحديثه عند كل تشغيل ngrok)
+    let serverUrl = "https://9b97-156-203-245-61.ngrok-free.app/submit";
+
     // إرسال البيانات إلى السيرفر
-    fetch("http://localhost:3000/submit", {
+    fetch(serverUrl, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
