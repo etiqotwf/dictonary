@@ -6,9 +6,19 @@ const { exec } = require("child_process");
 
 const app = express();
 const PORT = 3000;
+let serverUrl = ""; // سيتم تحديثه تلقائيًا
 
 app.use(cors());
 app.use(bodyParser.json());
+
+// إرسال الرابط إلى الواجهة الأمامية
+app.get("/ngrok-url", (req, res) => {
+    if (serverUrl) {
+        res.json({ serverUrl });
+    } else {
+        res.status(500).json({ message: "ngrok لم يتم تشغيله بعد!" });
+    }
+});
 
 app.post("/submit", (req, res) => {
     const { name, phone, date, startTime, timeTaken, score } = req.body;
@@ -44,10 +54,11 @@ app.post("/submit", (req, res) => {
     res.json({ message: "✅ Data received and saved successfully!", receivedData: { ...req.body, percentage } });
 });
 
-// تشغيل السيرفر ثم تشغيل ngrok تلقائيًا وجلب الرابط
+// تشغيل السيرفر
 app.listen(PORT, () => {
     console.log(`🚀 Server is running at http://localhost:${PORT}`);
 
+    // تشغيل ngrok تلقائيًا
     exec("ngrok http 3000", (err, stdout, stderr) => {
         if (err) {
             console.error("❌ Error starting ngrok:", err);
@@ -56,6 +67,7 @@ app.listen(PORT, () => {
         console.log("✅ ngrok started successfully!");
     });
 
+    // الانتظار 5 ثوانٍ لجلب الرابط الجديد من ngrok
     setTimeout(() => {
         exec("curl -s http://127.0.0.1:4040/api/tunnels", (err, stdout, stderr) => {
             if (err) {
@@ -65,11 +77,14 @@ app.listen(PORT, () => {
 
             try {
                 const tunnels = JSON.parse(stdout);
-                const publicUrl = tunnels.tunnels[0]?.public_url;
+                serverUrl = tunnels.tunnels[0]?.public_url;
 
-                if (publicUrl) {
+                if (serverUrl) {
                     console.log(`✅ يمكنك الآن الوصول إلى السيرفر المحلي الخاص بك عبر الرابط التالي:`);
-                    console.log(`🔗 ${publicUrl}`);
+                    console.log(`🔗 ${serverUrl}`);
+
+                    // حفظ الرابط في ملف يمكن قراءته من الواجهة الأمامية
+                    fs.writeFileSync("serverUrl.json", JSON.stringify({ serverUrl }));
                 } else {
                     console.log("⚠️ لم يتم العثور على رابط ngrok.");
                 }
@@ -77,5 +92,5 @@ app.listen(PORT, () => {
                 console.error("❌ Error parsing ngrok response:", parseError);
             }
         });
-    }, 3000); // الانتظار حتى يتم تشغيل ngrok
+    }, 5000); // الانتظار حتى يتم تشغيل ngrok بالكامل
 });
