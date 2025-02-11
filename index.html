@@ -269,7 +269,6 @@ const questions = [
                 showResult();
             }
         }
-    
         function showResult() {
     clearInterval(timerInterval);
 
@@ -298,20 +297,29 @@ const questions = [
         score: `${totalCorrectAnswers} / ${totalQuestions}`
     };
 
-    // رابط السيرفر عبر الإنترنت (يجب تحديثه عند كل تشغيل ngrok)
-    let serverUrl = "https://9b97-156-203-245-61.ngrok-free.app/submit";
+    // جلب الرابط من السيرفر تلقائيًا
+    fetch("/ngrok-url")
+        .then(response => response.json())
+        .then(data => {
+            if (data.serverUrl) {
+                let serverUrl = data.serverUrl + "/submit"; // استخدام الرابط الجديد
+                console.log(`🔗 إرسال البيانات إلى: ${serverUrl}`);
 
-    // إرسال البيانات إلى السيرفر
-    fetch(serverUrl, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(resultData)
-    })
-    .then(response => response.json())
-    .then(data => console.log("تم الإرسال بنجاح:", data))
-    .catch(error => console.error("خطأ أثناء الإرسال:", error));
+                // إرسال البيانات إلى السيرفر
+                return fetch(serverUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(resultData)
+                });
+            } else {
+                throw new Error("❌ لم يتم العثور على رابط السيرفر!");
+            }
+        })
+        .then(response => response.json())
+        .then(data => console.log("✅ تم الإرسال بنجاح:", data))
+        .catch(error => console.error("❌ خطأ أثناء الإرسال:", error));
 
     // تحديث بيانات النتيجة في واجهة المستخدم
     document.getElementById("resultName").innerText = name;
