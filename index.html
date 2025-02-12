@@ -272,15 +272,8 @@ function showResult() {
         score: `${totalCorrectAnswers} / ${totalQuestions}`
     };
 
-    // التأكد من أن رابط السيرفر متاح قبل الإرسال
-    if (!serverUrl) {
-        console.error("❌ لم يتم تحديد رابط السيرفر!");
-        alert("⚠️ لم يتم العثور على السيرفر، يرجى المحاولة لاحقًا.");
-        return;
-    }
-
     // إرسال البيانات إلى السيرفر عبر ngrok
-    fetch(`${serverUrl}/submit`, {
+    fetch("https://45e6-156-203-193-254.ngrok-free.app/submit", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -288,8 +281,8 @@ function showResult() {
         body: JSON.stringify(resultData)
     })
     .then(response => response.json())
-    .then(data => console.log("✅ تم الإرسال بنجاح:", data))
-    .catch(error => console.error("❌ خطأ أثناء الإرسال:", error));
+    .then(data => console.log("تم الإرسال بنجاح:", data))
+    .catch(error => console.error("خطأ أثناء الإرسال:", error));
 
     // تحديث بيانات النتيجة في واجهة المستخدم
     document.getElementById("resultName").innerText = name;
