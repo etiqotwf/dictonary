@@ -229,7 +229,7 @@ const questions = [
             }
         }
     
-        function showResult() {
+function showResult() {
     clearInterval(timerInterval);
 
     // حساب الوقت المستغرق
@@ -257,8 +257,8 @@ const questions = [
         score: `${totalCorrectAnswers} / ${totalQuestions}`
     };
 
-    // إرسال البيانات إلى السيرفر
-    fetch("http://localhost:3000/submit", {
+    // إرسال البيانات إلى السيرفر عبر ngrok
+    fetch("https://45e6-156-203-193-254.ngrok-free.app/submit", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
