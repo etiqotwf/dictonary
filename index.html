@@ -232,7 +232,7 @@ const questions = [
         let serverUrl = ""; // سيتم تحديثه تلقائيًا عند تحميل الصفحة
 
 // جلب رابط ngrok عند تشغيل الصفحة
-fetch("http://localhost:3000/ngrok-url")
+fetch("https://localhost:3000/ngrok-url")
     .then(response => response.json())
     .then(data => {
         if (data.serverUrl) {
