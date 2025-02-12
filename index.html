@@ -272,24 +272,24 @@ function showResult() {
         score: `${totalCorrectAnswers} / ${totalQuestions}`
     };
 
-    // رابط ngrok الصحيح
-    let serverURL = "https://45e6-156-203-193-254.ngrok-free.app/submit"; 
+    // التأكد من أن رابط السيرفر متاح قبل الإرسال
+    if (!serverUrl) {
+        console.error("❌ لم يتم تحديد رابط السيرفر!");
+        alert("⚠️ لم يتم العثور على السيرفر، يرجى المحاولة لاحقًا.");
+        return;
+    }
 
-    // إرسال البيانات إلى السيرفر باستخدام fetch
-    fetch(serverURL, {
+    // إرسال البيانات إلى السيرفر عبر ngrok
+    fetch(`${serverUrl}/submit`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        mode: "cors",  // السماح بطلبات CORS
         body: JSON.stringify(resultData)
     })
     .then(response => response.json())
-    .then(data => console.log("تم الإرسال بنجاح:", data))
-    .catch(error => {
-        console.error("خطأ أثناء الإرسال:", error);
-        alert("⚠️ لم يتمكن الهاتف من الاتصال بالسيرفر. تأكد من تشغيل ngrok واستخدام الرابط الصحيح.");
-    });
+    .then(data => console.log("✅ تم الإرسال بنجاح:", data))
+    .catch(error => console.error("❌ خطأ أثناء الإرسال:", error));
 
     // تحديث بيانات النتيجة في واجهة المستخدم
     document.getElementById("resultName").innerText = name;
