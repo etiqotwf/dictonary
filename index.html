@@ -229,7 +229,7 @@ const questions = [
             }
         }
     
-      let serverUrl = ""; // سيتم تحديثه تلقائيًا عند تحميل الصفحة
+let serverUrl = ""; // سيتم تحديثه تلقائيًا عند تحميل الصفحة
 
 // جلب رابط ngrok عند تشغيل الصفحة
 fetch("http://localhost:3000/ngrok-url")
@@ -247,34 +247,40 @@ fetch("http://localhost:3000/ngrok-url")
 function showResult() {
     clearInterval(timerInterval);
 
+    // حساب الوقت المستغرق
     let endTime = new Date();
     let timeTaken = Math.floor((endTime - startTime) / 1000);
     let minutesTaken = Math.floor(timeTaken / 60);
     let secondsTaken = timeTaken % 60;
 
+    // جلب بيانات المستخدم
     let name = document.getElementById("traineeName").value || "Unknown";
     let phone = document.getElementById("traineePhone").value || "Unknown";
     let date = new Date().toLocaleDateString("en-US");
 
+    // حساب النتيجة النهائية
     let totalQuestions = trueFalseQuestions.length + questions.length;
     let totalCorrectAnswers = tfCorrectAnswers + correctAnswers;
 
+    // إنشاء كائن النتيجة لإرساله إلى السيرفر
     let resultData = {
         name: name,
         phone: phone,
         date: date,
         startTime: startTime.toLocaleTimeString(),
         timeTaken: `${minutesTaken} min ${secondsTaken} sec`,
-        score: totalCorrectAnswers
+        score: `${totalCorrectAnswers} / ${totalQuestions}`
     };
 
+    // التأكد من أن رابط السيرفر متاح قبل الإرسال
     if (!serverUrl) {
         console.error("❌ لم يتم تحديد رابط السيرفر!");
         alert("⚠️ لم يتم العثور على السيرفر، يرجى المحاولة لاحقًا.");
         return;
     }
 
-    fetch("https://7ee0-156-203-193-254.ngrok-free.app/submit", {
+    // إرسال البيانات إلى السيرفر عبر ngrok
+    fetch(`${serverUrl}/submit`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -285,6 +291,7 @@ function showResult() {
     .then(data => console.log("✅ تم الإرسال بنجاح:", data))
     .catch(error => console.error("❌ خطأ أثناء الإرسال:", error));
 
+    // تحديث بيانات النتيجة في واجهة المستخدم
     document.getElementById("resultName").innerText = name;
     document.getElementById("resultPhone").innerText = phone;
     document.getElementById("resultDate").innerText = date;
@@ -292,6 +299,7 @@ function showResult() {
     document.getElementById("resultTime").innerText = `${minutesTaken} min ${secondsTaken} sec`;
     document.getElementById("resultScore").innerText = `${totalCorrectAnswers} / ${totalQuestions}`;
 
+    // إظهار شاشة النتيجة
     document.getElementById("quizContainer").style.display = "none";
     document.getElementById("resultScreen").style.display = "block";
 }
