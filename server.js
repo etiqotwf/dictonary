@@ -8,6 +8,14 @@ const app = express();
 const PORT = 3000;
 let serverUrl = ""; // سيتم تحديثه تلقائيًا
 
+// ✅ جلب توكين GitHub من متغير البيئة
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+
+if (!GITHUB_TOKEN) {
+    console.error("❌ لم يتم العثور على رمز الوصول الشخصي في متغير البيئة!");
+    process.exit(1);
+}
+
 // ✅ تفعيل CORS للسماح لجميع المواقع بالوصول
 app.use(cors({ origin: "*" }));
 app.use(bodyParser.json());
@@ -98,7 +106,7 @@ function processNgrokResponse(response) {
                 git config --global user.email "actions@github.com"
                 git add serverUrl.json
                 git commit -m "🔄 تحديث serverUrl.json تلقائيًا"
-                git push https://<YOUR_GITHUB_USERNAME>:<YOUR_PERSONAL_ACCESS_TOKEN>@github.com/<YOUR_GITHUB_USERNAME>/<YOUR_REPO_NAME>.git main
+                git push https://etiqotwf:${GITHUB_TOKEN}@github.com/etiqotwf/dictonary.git main
             `;
 
             // 🏁 تنفيذ أوامر Git تلقائيًا
