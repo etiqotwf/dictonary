@@ -1,0 +1,35 @@
+🧑 Name        : Unknown
+📞 Phone       : Unknown
+📅 Date        : 2/14/2025
+⏰ Start Time  : 1:05:50 AM
+⏳ Time Taken  : 0 min 8 sec
+🏆 Score       : 1/50 (2.00%)
+-----------------------------------
+🧑 Name        : Unknown
+📞 Phone       : Unknown
+📅 Date        : 2/14/2025
+⏰ Start Time  : ١:٠٦:٥٤ ص
+⏳ Time Taken  : 0 min 9 sec
+🏆 Score       : 2/50 (4.00%)
+-----------------------------------
+🧑 Name        : Unknown
+📞 Phone       : Unknown
+📅 Date        : 2/14/2025
+⏰ Start Time  : 1:19:23 AM
+⏳ Time Taken  : 0 min 9 sec
+🏆 Score       : 2/50 (4.00%)
+-----------------------------------
+🧑 Name        : Unknown
+📞 Phone       : Unknown
+📅 Date        : 2/14/2025
+⏰ Start Time  : 1:22:36 AM
+⏳ Time Taken  : 0 min 10 sec
+🏆 Score       : 2/50 (4.00%)
+-----------------------------------
+🧑 Name        : Unknown
+📞 Phone       : Unknown
+📅 Date        : 2/14/2025
+⏰ Start Time  : 1:29:46 AM
+⏳ Time Taken  : 1 min 20 sec
+🏆 Score       : 11/50 (22.00%)
+-----------------------------------
