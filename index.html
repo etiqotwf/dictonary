@@ -232,20 +232,39 @@ const questions = [
         let serverUrl = ""; // سيتم تحديثه تلقائيًا عند تحميل الصفحة
 
 // جلب رابط ngrok عند تشغيل الصفحة
-fetch("http://localhost:3000/ngrok-url")
-    .then(response => response.json())
-    .then(data => {
+async function fetchNgrokUrl() {
+    try {
+        const response = await fetch("http://localhost:3000/ngrok-url");
+        const data = await response.json();
+
         if (data.serverUrl) {
             serverUrl = data.serverUrl;
             console.log("✅ رابط السيرفر:", serverUrl);
         } else {
             console.error("❌ لم يتم العثور على رابط ngrok.");
         }
-    })
-    .catch(error => console.error("❌ خطأ في جلب رابط ngrok:", error));
+    } catch (error) {
+        console.error("❌ خطأ في جلب رابط ngrok:", error);
+    }
+}
 
-function showResult() {
+// استدعاء الدالة عند تحميل الصفحة
+fetchNgrokUrl();
+
+async function showResult() {
     clearInterval(timerInterval);
+
+    // التأكد من أن `serverUrl` قد تم تعيينه قبل المتابعة
+    if (!serverUrl) {
+        console.log("⚠️ انتظار جلب رابط ngrok...");
+        await new Promise(resolve => setTimeout(resolve, 3000)); // الانتظار 3 ثوانٍ
+    }
+
+    if (!serverUrl) {
+        console.error("❌ لم يتم تحديد رابط السيرفر!");
+        alert("⚠️ لم يتم العثور على السيرفر، يرجى المحاولة لاحقًا.");
+        return;
+    }
 
     // حساب الوقت المستغرق
     let endTime = new Date();
@@ -269,27 +288,21 @@ function showResult() {
         date: date,
         startTime: startTime.toLocaleTimeString(),
         timeTaken: `${minutesTaken} min ${secondsTaken} sec`,
-        score: `${totalCorrectAnswers} / ${totalQuestions}`
+        score: totalCorrectAnswers
     };
 
-    // التأكد من أن رابط السيرفر متاح قبل الإرسال
-    if (!serverUrl) {
-        console.error("❌ لم يتم تحديد رابط السيرفر!");
-        alert("⚠️ لم يتم العثور على السيرفر، يرجى المحاولة لاحقًا.");
-        return;
-    }
+    try {
+        const response = await fetch(`${serverUrl}/submit`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(resultData)
+        });
 
-    // إرسال البيانات إلى السيرفر عبر ngrok
-    fetch(`${serverUrl}/submit`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(resultData)
-    })
-    .then(response => response.json())
-    .then(data => console.log("✅ تم الإرسال بنجاح:", data))
-    .catch(error => console.error("❌ خطأ أثناء الإرسال:", error));
+        const data = await response.json();
+        console.log("✅ تم الإرسال بنجاح:", data);
+    } catch (error) {
+        console.error("❌ خطأ أثناء الإرسال:", error);
+    }
 
     // تحديث بيانات النتيجة في واجهة المستخدم
     document.getElementById("resultName").innerText = name;
