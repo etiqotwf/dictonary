@@ -91,6 +91,25 @@ function processNgrokResponse(response) {
         if (serverUrl) {
             console.log(`✅ يمكنك الوصول إلى السيرفر عبر: 🔗 ${serverUrl}`);
             fs.writeFileSync("serverUrl.json", JSON.stringify({ serverUrl }));
+
+            // 📤 رفع `serverUrl.json` تلقائيًا إلى GitHub
+            const gitCommands = `
+                git config --global user.name "GitHub Actions"
+                git config --global user.email "actions@github.com"
+                git add serverUrl.json
+                git commit -m "🔄 تحديث serverUrl.json تلقائيًا"
+                git push https://<YOUR_GITHUB_USERNAME>:<YOUR_PERSONAL_ACCESS_TOKEN>@github.com/<YOUR_GITHUB_USERNAME>/<YOUR_REPO_NAME>.git main
+            `;
+
+            // 🏁 تنفيذ أوامر Git تلقائيًا
+            exec(gitCommands, (gitErr, gitStdout, gitStderr) => {
+                if (gitErr) {
+                    console.error("❌ خطأ أثناء رفع serverUrl.json إلى GitHub:", gitErr);
+                    return;
+                }
+                console.log("✅ تم رفع serverUrl.json إلى GitHub بنجاح!");
+            });
+
         } else {
             console.log("⚠️ لم يتم العثور على رابط ngrok.");
         }
