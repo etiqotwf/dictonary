@@ -6,36 +6,36 @@ const { exec } = require("child_process");
 
 const app = express();
 const PORT = 3000;
-let serverUrl = ""; // سيتم تحديثه تلقائيًا
+let serverUrl = ""; // Will be updated automatically
 
-// ✅ جلب توكين GitHub من متغير البيئة
+// ✅ Fetch GitHub token from environment variable
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
 if (!GITHUB_TOKEN) {
-    console.error("❌ لم يتم العثور على رمز الوصول الشخصي في متغير البيئة!");
+    console.error("❌ GitHub token not found in environment variable!");
     process.exit(1);
 }
 
-// ✅ تفعيل CORS للسماح لجميع المواقع بالوصول
+// ✅ Enable CORS for all origins
 app.use(cors({ origin: "*" }));
 app.use(bodyParser.json());
 
-// 🔗 استرجاع رابط السيرفر
+// 🔗 Retrieve server URL
 app.get("/ngrok-url", (req, res) => {
     if (serverUrl) {
         res.json({ serverUrl });
     } else {
-        res.status(500).json({ message: "ngrok لم يتم تشغيله بعد!" });
+        res.status(500).json({ message: "ngrok is not running yet!" });
     }
 });
 
-// 📥 استقبال البيانات وحفظها في ملف
+// 📥 Receive data and save to file
 app.post("/submit", (req, res) => {
     const { name, phone, date, startTime, timeTaken, score } = req.body;
     const maxScore = 50;
     const numericScore = parseFloat(score);
 
-    // ✅ التحقق من صحة الدرجة
+    // ✅ Validate score value
     if (isNaN(numericScore) || numericScore < 0 || numericScore > maxScore) {
         return res.status(400).json({ message: "❌ Invalid score value!" });
     }
@@ -43,42 +43,42 @@ app.post("/submit", (req, res) => {
     const percentage = ((numericScore / maxScore) * 100).toFixed(2) + "%";
     const logEntry = `🧑 Name        : ${name}\n📞 Phone       : ${phone}\n📅 Date        : ${date}\n⏰ Start Time  : ${startTime}\n⏳ Time Taken  : ${timeTaken}\n🏆 Score       : ${numericScore}/${maxScore} (${percentage})\n-----------------------------------\n`;
 
-    console.log("📥 استلام البيانات:");
+    console.log("📥 Data received:");
     console.log(logEntry);
 
     fs.appendFile("data.txt", logEntry, (err) => {
         if (err) {
-            console.error("❌ خطأ أثناء حفظ البيانات:", err);
-            return res.status(500).json({ message: "❌ خطأ أثناء حفظ البيانات!" });
+            console.error("❌ Error saving data:", err);
+            return res.status(500).json({ message: "❌ Error saving data!" });
         }
-        console.log("✅ تم حفظ البيانات في data.txt");
+        console.log("✅ Data saved to data.txt");
     });
 
-    res.json({ message: "✅ تم استلام البيانات بنجاح!", receivedData: { ...req.body, percentage } });
+    res.json({ message: "✅ Data received successfully!", receivedData: { ...req.body, percentage } });
 });
 
-// 🚀 تشغيل السيرفر
+// 🚀 Start server
 app.listen(PORT, () => {
-    console.log(`🚀 السيرفر يعمل على http://localhost:${PORT}`);
+    console.log(`🚀 Server is running on http://localhost:${PORT}`);
 
-    // ✅ التأكد من عدم تشغيل `ngrok` مسبقًا قبل إعادة تشغيله
+    // ✅ Ensure `ngrok` is not already running before restarting it
     exec("pgrep -f 'ngrok' && pkill -f 'ngrok'", () => {
         exec("ngrok http 3000 --log=stdout", (err, stdout, stderr) => {
             if (err) {
-                console.error("❌ خطأ أثناء تشغيل ngrok:", err);
+                console.error("❌ Error starting ngrok:", err);
                 return;
             }
-            console.log("✅ ngrok يعمل بنجاح!");
+            console.log("✅ ngrok started successfully!");
         });
 
-        // ⏳ الانتظار 5 ثوانٍ ثم جلب رابط `ngrok`
+        // ⏳ Wait 5 seconds then fetch `ngrok` URL
         setTimeout(() => {
             exec("curl -s http://127.0.0.1:4040/api/tunnels", (err, stdout, stderr) => {
                 if (err || !stdout) {
-                    console.log("⚠️ فشل جلب رابط ngrok باستخدام curl. سيتم استخدام Invoke-WebRequest.");
+                    console.log("⚠️ Failed to fetch ngrok URL using curl. Trying Invoke-WebRequest.");
                     exec("powershell -Command \"(Invoke-WebRequest -Uri 'http://127.0.0.1:4040/api/tunnels' -UseBasicParsing).Content\"", (psErr, psStdout, psStderr) => {
                         if (psErr || !psStdout) {
-                            console.error("❌ خطأ أثناء جلب رابط ngrok:", psErr || psStderr);
+                            console.error("❌ Error fetching ngrok URL:", psErr || psStderr);
                             return;
                         }
                         processNgrokResponse(psStdout);
@@ -97,31 +97,31 @@ function processNgrokResponse(response) {
         serverUrl = tunnels.tunnels[0]?.public_url;
 
         if (serverUrl) {
-            console.log(`✅ يمكنك الوصول إلى السيرفر عبر: 🔗 ${serverUrl}`);
+            console.log(`✅ Server accessible at: 🔗 ${serverUrl}`);
             fs.writeFileSync("serverUrl.json", JSON.stringify({ serverUrl }));
 
-            // 📤 رفع `serverUrl.json` تلقائيًا إلى GitHub
+            // 📤 Auto-upload `serverUrl.json` to GitHub
             const gitCommands = `
                 git config --global user.name "GitHub Actions"
                 git config --global user.email "actions@github.com"
                 git add serverUrl.json
-                git commit -m "🔄 تحديث serverUrl.json تلقائيًا"
+                git commit -m "🔄 Auto-update serverUrl.json"
                 git push https://etiqotwf:${GITHUB_TOKEN}@github.com/etiqotwf/dictonary.git main
             `;
 
-            // 🏁 تنفيذ أوامر Git تلقائيًا
+            // 🏁 Execute Git commands automatically
             exec(gitCommands, (gitErr, gitStdout, gitStderr) => {
                 if (gitErr) {
-                    console.error("❌ خطأ أثناء رفع serverUrl.json إلى GitHub:", gitErr);
+                    console.error("❌ Error pushing serverUrl.json to GitHub:", gitErr);
                     return;
                 }
-                console.log("✅ تم رفع serverUrl.json إلى GitHub بنجاح!");
+                console.log("✅ serverUrl.json uploaded to GitHub successfully!");
             });
 
         } else {
-            console.log("⚠️ لم يتم العثور على رابط ngrok.");
+            console.log("⚠️ ngrok URL not found.");
         }
     } catch (parseError) {
-        console.error("❌ خطأ أثناء تحليل استجابة ngrok:", parseError);
+        console.error("❌ Error parsing ngrok response:", parseError);
     }
 }
