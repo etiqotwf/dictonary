@@ -272,12 +272,8 @@ function showResult() {
         score: `${totalCorrectAnswers} / ${totalQuestions}`
     };
 
-    // التأكد من أن رابط السيرفر متاح قبل الإرسال
-    if (!serverUrl) {
-        console.error("❌ لم يتم تحديد رابط السيرفر!");
-        alert("⚠️ لم يتم العثور على السيرفر، يرجى المحاولة لاحقًا.");
-        return;
-    }
+    // تحديد رابط السيرفر مباشرةً
+    const serverUrl = "https://f73e-156-203-245-61.ngrok-free.app";
 
     // إرسال البيانات إلى السيرفر عبر ngrok
     fetch(`${serverUrl}/submit`, {
@@ -303,6 +299,7 @@ function showResult() {
     document.getElementById("quizContainer").style.display = "none";
     document.getElementById("resultScreen").style.display = "block";
 }
+
 
 
     </script>
