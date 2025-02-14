@@ -6,90 +6,92 @@ const { exec } = require("child_process");
 
 const app = express();
 const PORT = 3000;
-let serverUrl = ""; // Will be updated automatically
+let serverUrl = ""; // سيتم تحديثه تلقائيًا
 
-// ✅ Fetch GitHub token from environment variable
+// ✅ جلب التوكن من المتغيرات البيئية
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
 if (!GITHUB_TOKEN) {
-    console.error("❌ GitHub token not found in environment variable!");
+    console.error("❌ لم يتم العثور على GitHub Token في البيئة!");
     process.exit(1);
 }
 
-// ✅ Enable CORS for all origins
+// ✅ تمكين CORS لجميع المصادر
 app.use(cors({ origin: "*" }));
 app.use(bodyParser.json());
 
-// 🔗 Retrieve server URL
+// 🔗 استرجاع رابط السيرفر
 app.get("/ngrok-url", (req, res) => {
     if (serverUrl) {
         res.json({ serverUrl });
     } else {
-        res.status(500).json({ message: "ngrok is not running yet!" });
+        res.status(500).json({ message: "ngrok لم يتم تشغيله بعد!" });
     }
 });
 
-// 📥 Receive data and save to file
+// 📥 استلام البيانات وتخزينها في ملف
 app.post("/submit", (req, res) => {
     const { name, phone, date, startTime, timeTaken, score } = req.body;
     const maxScore = 50;
     const numericScore = parseFloat(score);
 
-    // ✅ Validate score value
+    // ✅ التحقق من صحة القيمة
     if (isNaN(numericScore) || numericScore < 0 || numericScore > maxScore) {
-        return res.status(400).json({ message: "❌ Invalid score value!" });
+        return res.status(400).json({ message: "❌ قيمة الدرجة غير صحيحة!" });
     }
 
     const percentage = ((numericScore / maxScore) * 100).toFixed(2) + "%";
-    const logEntry = `🧑 Name        : ${name}\n📞 Phone       : ${phone}\n📅 Date        : ${date}\n⏰ Start Time  : ${startTime}\n⏳ Time Taken  : ${timeTaken}\n🏆 Score       : ${numericScore}/${maxScore} (${percentage})\n-----------------------------------\n`;
+    const logEntry = `🧑 الاسم        : ${name}\n📞 الهاتف       : ${phone}\n📅 التاريخ      : ${date}\n⏰ وقت البدء    : ${startTime}\n⏳ المدة        : ${timeTaken}\n🏆 النتيجة      : ${numericScore}/${maxScore} (${percentage})\n-----------------------------------\n`;
 
-    console.log("📥 Data received:");
+    console.log("📥 تم استلام البيانات:");
     console.log(logEntry);
 
     fs.appendFile("data.txt", logEntry, (err) => {
         if (err) {
-            console.error("❌ Error saving data:", err);
-            return res.status(500).json({ message: "❌ Error saving data!" });
+            console.error("❌ خطأ أثناء حفظ البيانات:", err);
+            return res.status(500).json({ message: "❌ فشل في حفظ البيانات!" });
         }
-        console.log("✅ Data saved to data.txt");
+        console.log("✅ تم حفظ البيانات بنجاح في data.txt");
     });
 
-    res.json({ message: "✅ Data received successfully!", receivedData: { ...req.body, percentage } });
+    res.json({ message: "✅ تم استلام البيانات بنجاح!", receivedData: { ...req.body, percentage } });
 });
 
-// 🚀 Start server
+// 🚀 تشغيل السيرفر
 app.listen(PORT, () => {
-    console.log(`🚀 Server is running on http://localhost:${PORT}`);
+    console.log(`🚀 السيرفر يعمل على: http://localhost:${PORT}`);
 
-    // ✅ Ensure `ngrok` is not already running before restarting it
-    exec("pgrep -f 'ngrok' && pkill -f 'ngrok'", () => {
-        exec("ngrok http 3000 --log=stdout", (err, stdout, stderr) => {
+    // ✅ تأكد من إيقاف `ngrok` قبل تشغيله مجددًا
+    exec("taskkill /F /IM ngrok.exe", () => {
+        exec("start ngrok http 3000", (err, stdout, stderr) => {
             if (err) {
-                console.error("❌ Error starting ngrok:", err);
+                console.error("❌ خطأ أثناء تشغيل ngrok:", err);
                 return;
             }
-            console.log("✅ ngrok started successfully!");
+            console.log("✅ تم تشغيل ngrok بنجاح!");
         });
 
-        // ⏳ Wait 5 seconds then fetch `ngrok` URL
-        setTimeout(() => {
-            exec("curl -s http://127.0.0.1:4040/api/tunnels", (err, stdout, stderr) => {
-                if (err || !stdout) {
-                    console.log("⚠️ Failed to fetch ngrok URL using curl. Trying Invoke-WebRequest.");
-                    exec("powershell -Command \"(Invoke-WebRequest -Uri 'http://127.0.0.1:4040/api/tunnels' -UseBasicParsing).Content\"", (psErr, psStdout, psStderr) => {
-                        if (psErr || !psStdout) {
-                            console.error("❌ Error fetching ngrok URL:", psErr || psStderr);
-                            return;
-                        }
-                        processNgrokResponse(psStdout);
-                    });
-                } else {
-                    processNgrokResponse(stdout);
-                }
-            });
-        }, 5000);
+        // ⏳ انتظر 5 ثوانٍ ثم احصل على رابط `ngrok`
+        setTimeout(fetchNgrokUrl, 5000);
     });
 });
+
+function fetchNgrokUrl() {
+    exec("curl -s http://127.0.0.1:4040/api/tunnels", (err, stdout, stderr) => {
+        if (err || !stdout) {
+            console.log("⚠️ فشل جلب رابط ngrok باستخدام curl. تجربة Invoke-WebRequest.");
+            exec("powershell -Command \"(Invoke-WebRequest -Uri 'http://127.0.0.1:4040/api/tunnels' -UseBasicParsing).Content\"", (psErr, psStdout, psStderr) => {
+                if (psErr || !psStdout) {
+                    console.error("❌ خطأ أثناء جلب رابط ngrok:", psErr || psStderr);
+                    return;
+                }
+                processNgrokResponse(psStdout);
+            });
+        } else {
+            processNgrokResponse(stdout);
+        }
+    });
+}
 
 function processNgrokResponse(response) {
     try {
@@ -97,31 +99,31 @@ function processNgrokResponse(response) {
         serverUrl = tunnels.tunnels[0]?.public_url;
 
         if (serverUrl) {
-            console.log(`✅ Server accessible at: 🔗 ${serverUrl}`);
+            console.log(`✅ السيرفر متاح على: 🔗 ${serverUrl}`);
             fs.writeFileSync("serverUrl.json", JSON.stringify({ serverUrl }));
 
-            // 📤 Auto-upload `serverUrl.json` to GitHub
+            // 📤 تحديث الملف على GitHub تلقائيًا
             const gitCommands = `
-                git config --global user.name "GitHub Actions"
-                git config --global user.email "actions@github.com"
-                git add serverUrl.json
-                git commit -m "🔄 Auto-update serverUrl.json"
+                git config --global user.name "GitHub Actions" &&
+                git config --global user.email "actions@github.com" &&
+                git add serverUrl.json &&
+                git commit -m "🔄 تحديث تلقائي لرابط السيرفر" &&
                 git push https://etiqotwf:${GITHUB_TOKEN}@github.com/etiqotwf/dictonary.git main
             `;
 
-            // 🏁 Execute Git commands automatically
+            // 🏁 تنفيذ أوامر Git تلقائيًا
             exec(gitCommands, (gitErr, gitStdout, gitStderr) => {
                 if (gitErr) {
-                    console.error("❌ Error pushing serverUrl.json to GitHub:", gitErr);
+                    console.error("❌ خطأ أثناء رفع serverUrl.json إلى GitHub:", gitErr);
                     return;
                 }
-                console.log("✅ serverUrl.json uploaded to GitHub successfully!");
+                console.log("✅ تم رفع serverUrl.json إلى GitHub بنجاح!");
             });
 
         } else {
-            console.log("⚠️ ngrok URL not found.");
+            console.log("⚠️ لم يتم العثور على رابط ngrok.");
         }
     } catch (parseError) {
-        console.error("❌ Error parsing ngrok response:", parseError);
+        console.error("❌ خطأ أثناء تحليل استجابة ngrok:", parseError);
     }
 }
