@@ -29,7 +29,7 @@ app.get("/ngrok-url", (req, res) => {
     }
 });
 
-// 📥 Receive data and save to CSV file
+// 📥 Receive data and save to file
 app.post("/submit", (req, res) => {
     const { name, phone, date, startTime, timeTaken, score } = req.body;
     const maxScore = 50;
@@ -41,47 +41,20 @@ app.post("/submit", (req, res) => {
     }
 
     const percentage = ((numericScore / maxScore) * 100).toFixed(2) + "%";
-
-    // 🎨 Create the log entry
-    const logEntry = {
-        name,
-        phone,
-        date,
-        startTime,
-        timeTaken,
-        score: `${numericScore}/${maxScore}`,
-        percentage
-    };
+    const logEntry = `🧑 Name       : ${name}\n📞 Phone     : ${phone}\n📅 Date      : ${date}\n⏰ Start Time: ${startTime}\n⏳ Time Taken: ${timeTaken}\n🏆 Score     : ${numericScore}/${maxScore} (${percentage})\n-----------------------------------\n`;
 
     console.log("📥 Data received:");
     console.log(logEntry);
 
-    // ✅ Save data in CSV format
-    const csvHeader = "Name,Phone,Date,Start Time,Time Taken,Score,Percentage\n";
-    const csvRow = `${logEntry.name},${logEntry.phone},${logEntry.date},${logEntry.startTime},${logEntry.timeTaken},${logEntry.score},${logEntry.percentage}\n`;
-
-    // Check if file exists, if not, write header and data
-    fs.exists("data.csv", (exists) => {
-        if (!exists) {
-            fs.writeFile("data.csv", csvHeader + csvRow, (err) => {
-                if (err) {
-                    console.error("❌ Error saving data:", err);
-                    return res.status(500).json({ message: "❌ Error saving data!" });
-                }
-                console.log("✅ Data saved to data.csv");
-            });
-        } else {
-            fs.appendFile("data.csv", csvRow, (err) => {
-                if (err) {
-                    console.error("❌ Error saving data:", err);
-                    return res.status(500).json({ message: "❌ Error saving data!" });
-                }
-                console.log("✅ Data appended to data.csv");
-            });
+    fs.appendFile("data.txt", logEntry, (err) => {
+        if (err) {
+            console.error("❌ Error saving data:", err);
+            return res.status(500).json({ message: "❌ Error saving data!" });
         }
+        console.log("✅ Data saved to data.txt");
     });
 
-    res.json({ message: "✅ Data received successfully!", receivedData: logEntry });
+    res.json({ message: "✅ Data received successfully!", receivedData: { ...req.body, percentage } });
 });
 
 // 🚀 Start the server
@@ -154,3 +127,6 @@ function pushToGitHub() {
         });
     });
 }
+
+
+
