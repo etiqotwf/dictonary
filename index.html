@@ -358,9 +358,9 @@ function showResult() {
     document.getElementById("resultScreen").style.display = "block";
 }
 
-// دالة لإرسال البيانات إلى السيرفر
+// دالة لإرسال البيانات إلى السيرفر (تطبيق Google Apps Script)
 function sendDataToServer(resultData) {
-    fetch(`${serverUrl}/submit`, {
+    fetch(`${serverUrl}/exec`, { // تأكد من استخدام رابط تطبيق Google Apps Script بعد النشر
         method: "POST",
         headers: {
             "Content-Type": "application/json"
