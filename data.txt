@@ -40,3 +40,10 @@
 ⏳ Time Taken: 1 min 28 sec
 🏆 Score     : 18/50 (36.00%)
 -----------------------------------
+🧑 Name       : Unknown
+📞 Phone     : Unknown
+📅 Date      : 2/14/2025
+⏰ Start Time: ٦:٤٥:٢٥ م
+⏳ Time Taken: 0 min 53 sec
+🏆 Score     : 13/50 (26.00%)
+-----------------------------------
