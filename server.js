@@ -114,17 +114,19 @@ function processNgrokResponse(response) {
 function pushToGitHub() {
     console.log("📤 Pushing updates to GitHub...");
 
-    const gitCommands = `
-        git add .
-        git commit -m "Auto update"
-        git push https://etiqotwf:${GITHUB_TOKEN}@github.com/etiqotwf/dictonary.git main
-    `;
+    exec("git add .", (err, stdout, stderr) => {
+        if (err) return console.error("❌ Error in git add:", err);
 
-    exec(gitCommands, (gitErr, gitStdout, gitStderr) => {
-        if (gitErr) {
-            console.error("❌ Error pushing updates to GitHub:", gitErr);
-            return;
-        }
-        console.log("✅ All changes successfully pushed to GitHub!");
+        exec('git commit -m "Auto update"', (err, stdout, stderr) => {
+            if (err) return console.error("❌ Error in git commit:", err);
+
+            exec(`git push https://etiqotwf:${GITHUB_TOKEN}@github.com/etiqotwf/dictonary.git main`, (err, stdout, stderr) => {
+                if (err) return console.error("❌ Error in git push:", err);
+                console.log("✅ All changes successfully pushed to GitHub!");
+            });
+        });
     });
 }
+
+
+
