@@ -89,12 +89,6 @@ app.listen(PORT, () => {
             });
         }, 5000);
     });
-
-    // ⏳ Set interval to push data to GitHub every 5 minutes
-    setInterval(() => {
-        console.log("⏳ Checking for updates every 5 minutes...");
-        pushToGitHub();
-    }, 5 * 60 * 1000); // 5 minutes in milliseconds
 });
 
 function processNgrokResponse(response) {
@@ -133,3 +127,6 @@ function pushToGitHub() {
         });
     });
 }
+
+
+
