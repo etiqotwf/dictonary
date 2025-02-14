@@ -272,6 +272,8 @@ const questions = [
         }
     
 let serverUrl = ""; // سيتم تحديثه تلقائيًا عند تحميل الصفحة
+let retryCount = 0; // عدد محاولات جلب رابط السيرفر
+const MAX_RETRIES = 5; // الحد الأقصى لعدد المحاولات
 
 // دالة لجلب رابط السيرفر المخزن في GitHub
 function fetchServerUrl() {
@@ -283,9 +285,24 @@ function fetchServerUrl() {
                 console.log("✅ رابط السيرفر المحدث من GitHub:", serverUrl);
             } else {
                 console.error("❌ لم يتم العثور على رابط السيرفر في المستودع.");
+                retryFetchServerUrl();
             }
         })
-        .catch(error => console.error("❌ خطأ في جلب رابط السيرفر من GitHub:", error));
+        .catch(error => {
+            console.error("❌ خطأ في جلب رابط السيرفر من GitHub:", error);
+            retryFetchServerUrl();
+        });
+}
+
+// دالة لإعادة المحاولة عند الفشل
+function retryFetchServerUrl() {
+    if (retryCount < MAX_RETRIES) {
+        retryCount++;
+        console.log(`🔄 إعادة المحاولة (${retryCount}/${MAX_RETRIES}) بعد 3 ثوانٍ...`);
+        setTimeout(fetchServerUrl, 3000);
+    } else {
+        console.error("⛔ تم الوصول إلى الحد الأقصى من المحاولات، تعذر جلب رابط السيرفر.");
+    }
 }
 
 // تحميل رابط السيرفر عند فتح الصفحة
@@ -323,6 +340,7 @@ function showResult() {
                 sendDataToServer(resultData);
             } else {
                 console.error("❌ لم يتم تحميل رابط السيرفر بعد. يُرجى المحاولة لاحقًا.");
+                alert("⚠️ تعذر إرسال البيانات! تأكد من اتصال الإنترنت وأعد المحاولة.");
             }
         });
     } else {
@@ -355,6 +373,7 @@ function sendDataToServer(resultData) {
     .then(data => console.log("✅ تم الإرسال بنجاح:", data))
     .catch(error => console.error("❌ خطأ أثناء الإرسال:", error));
 }
+
 
 
 
