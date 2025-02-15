@@ -190,20 +190,13 @@ const questions = [
         let timerInterval;
         let startTime;
     
-        function startQuiz() {
-    let password = document.getElementById("password").value;
-
-    if (password !== "1234") {
-        alert("كلمة المرور غير صحيحة! الرجاء المحاولة مرة أخرى.");
-        return;
-    }
-
+       function startQuiz() {
     document.getElementById("startScreen").style.display = "none";
     document.getElementById("quizContainer").style.display = "block";
     startTime = new Date();
     startTimer();
     loadTFQuestion();
-
+    
     // تشغيل وضع ملء الشاشة
     let elem = document.documentElement;
     if (elem.requestFullscreen) {
@@ -216,7 +209,6 @@ const questions = [
         elem.msRequestFullscreen();
     }
 }
-
 
     
         function startTimer() {
