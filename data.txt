@@ -54,3 +54,10 @@
 ⏳ Time Taken: 1 min 22 sec
 🏆 Score     : 15/50 (30.00%)
 -----------------------------------
+🧑 Name       : Test
+📞 Phone     : Unknown
+📅 Date      : 2/16/2025
+⏰ Start Time: ٩:١١:١١ م
+⏳ Time Taken: 1 min 4 sec
+🏆 Score     : 14/50 (28.00%)
+-----------------------------------
