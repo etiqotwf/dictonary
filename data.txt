@@ -47,4 +47,10 @@
 📅 Date      : 2/14/2025
 ⏰ Start Time: 8:37:21 PM
 ⏳ Time Taken: 1 min 17 sec
-🏆 Score     : 9/50 (18.00%)
+🏆 Score     : 9/50 (18.00%)🧑 Name       : Test
+📞 Phone     : 12345
+📅 Date      : 2/16/2025
+⏰ Start Time: ٢:١٢:٠٨ م
+⏳ Time Taken: 1 min 22 sec
+🏆 Score     : 15/50 (30.00%)
+-----------------------------------
